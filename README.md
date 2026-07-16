@@ -53,9 +53,3 @@ Each line of `data/processed/dataset.jsonl` looks like:
 {"id": "prepared_generated_data_for_nhs_uk_qa_1-1-0", "source": "prepared_generated_data_for_nhs_uk_qa_1", "question": "What are the risks of high blood pressure?", "answer": "...", "references": ["https://www.nhs.uk/conditions/..."]}
 ```
 
-## What's next (not built yet)
-
-- Chunk long answers and embed them into a vector store (e.g. Chroma/FAISS)
-- Retriever that prefers cited NHS records over the uncited clinical/mental-health ones
-- A generation step (LLM) that answers using only retrieved passages and always cites its source
-- A simple way to ask it questions (CLI or small web UI)
