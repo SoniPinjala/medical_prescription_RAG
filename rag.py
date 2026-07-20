@@ -16,10 +16,10 @@ index = faiss.read_index("data/processed/faiss.index")
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
 
-def retrieve(query: str) -> list[dict]:
-    """Embed the query and return the TOP_K most similar chunks."""
+def retrieve(query: str, k: int = TOP_K) -> list[dict]:
+    """Embed the query and return the k most similar chunks (default TOP_K)."""
     q_vec = embedder.encode([query], normalize_embeddings=True).astype("float32")
-    _scores, positions = index.search(q_vec, TOP_K)
+    _scores, positions = index.search(q_vec, k)
     return [chunks[pos] for pos in positions[0]]
 
 
@@ -32,7 +32,8 @@ def build_context(hits: list[dict]) -> str:
     return "\n\n".join(blocks)
 
 
-def answer(query: str) -> str:
+def answer(query: str) -> tuple[str, list[dict]]:
+    """Return the generated answer and the chunks it was grounded in."""
     hits = retrieve(query)
     context = build_context(hits)
 
