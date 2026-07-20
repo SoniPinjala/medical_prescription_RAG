@@ -1,0 +1,13 @@
+{
+  "method": "bm25",
+  "method_label": "BM25 (sparse keyword)",
+  "sample_size": 500,
+  "corpus_chunks": 43615,
+  "metrics": {
+    "recall@1": 0.34,
+    "recall@3": 0.504,
+    "recall@5": 0.566,
+    "mrr": 0.4276,
+    "median_latency_ms": 39.61
+  }
+}

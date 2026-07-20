@@ -1,0 +1,13 @@
+{
+  "method": "dense",
+  "method_label": "Dense vectors + FAISS HNSW",
+  "sample_size": 500,
+  "corpus_chunks": 43615,
+  "metrics": {
+    "recall@1": 0.45,
+    "recall@3": 0.662,
+    "recall@5": 0.73,
+    "mrr": 0.5651,
+    "median_latency_ms": 4.79
+  }
+}
