@@ -1,13 +1,3 @@
-"""BM25 keyword-search baseline - the classic SPARSE retrieval method.
-
-BM25 scores a document by how many query terms it contains, weighted by:
-  - IDF: rare terms count for more than common ones ("aphasia" > "the")
-  - term frequency saturation: the 5th mention of a word adds less than the 2nd
-  - length normalisation: long documents don't win just by being long
-
-No embeddings, no neural network, no training. This is the baseline that dense vector
-search has to BEAT to justify its extra cost and complexity.
-"""
 import json
 import re
 from functools import lru_cache
