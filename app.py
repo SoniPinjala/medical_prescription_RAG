@@ -1,95 +1,69 @@
-"""Streamlit UI for the medical RAG assistant."""
-import json
-from pathlib import Path
+"""Streamlit UI for the medical RAG assistant.
 
-import faiss
-import ollama
+Thin front-end over router.answer(): the router does retrieval, guardrails
+(refuse / corpus / web-search) and generation. This file only renders.
+"""
 import streamlit as st
-from sentence_transformers import SentenceTransformer
 
-MODEL = "llama3.2:3b"
-TOP_K = 5
+from router import answer as routed_answer
 
 st.set_page_config(page_title="NHS Health Q&A", page_icon="🩺")
 
-
-# --- Load heavy resources ONCE (cached across reruns) ---
-@st.cache_resource
-def load_resources():
-    chunks = [json.loads(l) for l in Path("data/processed/chunks.jsonl").open(encoding="utf-8")]
-    index = faiss.read_index("data/processed/faiss.index")
-    embedder = SentenceTransformer("all-MiniLM-L6-v2")
-    return chunks, index, embedder
+BADGES = {
+    "corpus": "From NHS corpus",
+    "web": "From web search",
+    "web_no_results": "Web search — nothing found",
+    "refuse": "Out of scope",
+}
 
 
-chunks, index, embedder = load_resources()
-
-
-def retrieve(query: str) -> list[dict]:
-    q_vec = embedder.encode([query], normalize_embeddings=True).astype("float32")
-    _scores, positions = index.search(q_vec, TOP_K)
-    return [chunks[pos] for pos in positions[0]]
-
-
-def build_context(hits: list[dict]) -> str:
-    blocks = []
-    for i, c in enumerate(hits, start=1):
-        ref = c["references"][0] if c["references"] else "no source URL"
-        blocks.append(f"[{i}] (source: {ref})\n{c['chunk']}")
-    return "\n\n".join(blocks)
-
-
-SYSTEM_PROMPT = (
-    "You are a health information assistant. Answer the user's question using ONLY the "
-    "numbered context passages provided. If the context does not contain the answer, say "
-    "you don't have that information rather than guessing. Cite the sources you used by their "
-    "[number]. Always end with: 'This is general information, not medical advice.'"
-)
+def render_sources(sources: list[dict]) -> None:
+    """Show retrieved sources. Handles both corpus chunks and web results."""
+    if not sources:
+        return
+    with st.expander("Sources used"):
+        for i, s in enumerate(sources, start=1):
+            if "url" in s:  # web result: {title, url, snippet}
+                st.markdown(f"**[{i}] {s['title']}**  \n{s['url']}")
+            else:  # corpus chunk
+                ref = s["references"][0] if s["references"] else "(no citation)"
+                st.markdown(f"**[{i}] {s['source']}**  \nQ: *{s['question']}*  \n{ref}")
 
 
 # --- UI ---
 st.title("🩺 NHS-Grounded Health Q&A")
-st.caption("Answers are generated from retrieved NHS/medical passages. Not medical advice.")
+st.caption("Answers come from a curated NHS corpus, with a trusted-web fallback. Not medical advice.")
 
-# 1. Initialise chat history once (survives reruns via session_state)
+# Chat history survives Streamlit reruns via session_state.
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# 2. Re-draw the whole conversation on every rerun
+# Re-draw the whole conversation on every rerun.
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
+        if msg.get("caption"):
+            st.caption(msg["caption"])
         st.markdown(msg["content"])
-        if msg.get("sources"):
-            with st.expander("Sources used"):
-                for i, c in enumerate(msg["sources"], start=1):
-                    ref = c["references"][0] if c["references"] else "(no citation)"
-                    st.markdown(f"**[{i}] {c['source']}**  \nQ: *{c['question']}*  \n{ref}")
+        render_sources(msg.get("sources", []))
 
-# 3. Persistent input box pinned to the bottom
+# Persistent input box pinned to the bottom.
 if query := st.chat_input("Ask a health question..."):
-    # -- show and store the user's message --
     st.session_state.messages.append({"role": "user", "content": query})
     with st.chat_message("user"):
         st.markdown(query)
 
-    # -- retrieve for THIS question --
-    hits = retrieve(query)
-    context_prompt = f"Context:\n{build_context(hits)}\n\nQuestion: {query}"
-
-    # -- build the message list: system + past turns + current (with context) --
-    model_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    for m in st.session_state.messages[:-1]:          # prior turns, plain text
-        model_messages.append({"role": m["role"], "content": m["content"]})
-    model_messages.append({"role": "user", "content": context_prompt})  # current + context
-
-    # -- generate and stream into an assistant bubble --
     with st.chat_message("assistant"):
-        stream = ollama.chat(model=MODEL, messages=model_messages, stream=True)
-        answer = st.write_stream(chunk["message"]["content"] for chunk in stream)
-        with st.expander("Sources used"):
-            for i, c in enumerate(hits, start=1):
-                ref = c["references"][0] if c["references"] else "(no citation)"
-                st.markdown(f"**[{i}] {c['source']}**  \nQ: *{c['question']}*  \n{ref}")
+        with st.spinner("Thinking..."):
+            # [:-1] excludes the message we just appended - it's passed as `query`.
+            out = routed_answer(query, history=st.session_state.messages[:-1])
 
-    # -- store the assistant's reply so it persists --
-    st.session_state.messages.append({"role": "assistant", "content": answer, "sources": hits})
+        # caption = f"{BADGES.get(out['decision'], out['decision'])} · top score {out['top_score']:.2f}"
+        caption = 'Bot_Assistant'
+        st.caption(caption)
+        st.markdown(out["answer"])
+        render_sources(out["sources"])
+
+    st.session_state.messages.append(
+        {"role": "assistant", "content": out["answer"],
+         "sources": out["sources"], "caption": caption}
+    )
