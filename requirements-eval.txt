@@ -1,0 +1,14 @@
+# Evaluation-only dependencies. Kept separate from requirements.txt because RAGAS pulls
+# in langchain, langchain-core, langchain-community, langchain_openai and the openai
+# client - none of which the RAG app itself needs.
+#
+#   pip install -r requirements-eval.txt
+
+ragas>=0.4
+langchain-core>=0.3,<0.4
+langchain>=0.3,<0.4
+langchain-community>=0.3,<0.4
+langchain-openai>=0.2,<0.4
+langchain-ollama>=0.2,<0.4
+langchain-huggingface>=0.1,<0.3
+rank-bm25>=0.2
