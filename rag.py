@@ -17,10 +17,18 @@ embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 def retrieve(query: str, k: int = TOP_K) -> list[dict]:
-    """Embed the query and return the k most similar chunks (default TOP_K)."""
+    """Embed the query and return the k most similar chunks (default TOP_K).
+
+    Each returned chunk carries a "score": the cosine similarity to the query, in
+    [0, 1]. Routing logic uses it to decide whether the corpus actually knows the
+    answer. dict(...) copies the chunk so we never mutate the cached list.
+    """
     q_vec = embedder.encode([query], normalize_embeddings=True).astype("float32")
-    _scores, positions = index.search(q_vec, k)
-    return [chunks[pos] for pos in positions[0]]
+    scores, positions = index.search(q_vec, k)
+    return [
+        dict(chunks[pos], score=float(score))
+        for pos, score in zip(positions[0], scores[0])
+    ]
 
 
 def build_context(hits: list[dict]) -> str:
