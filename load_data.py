@@ -2,8 +2,6 @@
 Step 1 of the RAG pipeline: download the FunPang/medical_dataset from Hugging Face
 and turn it into a clean list of question/answer records we can later embed and index.
 
-Run it with:
-    python load_data.py
 """
 
 import json
