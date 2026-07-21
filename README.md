@@ -23,6 +23,3 @@ Hugging Face. It's four CSVs of medical Q&A conversations, written as raw text l
 | `prepared_generated_data_for_medical_tasks_1.csv` | Clinical reasoning / procedures | 4,689 | No |
 | `mental_health_conversation.csv` | Mental health Q&A | 172 | No |
 
-The two NHS files (88% of the data) are the heart of this project — they're the only rows with a real
-citation attached, which is what will let the RAG system show "here's where this answer came from"
-instead of asking the user to trust it blindly.
