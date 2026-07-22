@@ -14,6 +14,7 @@ BADGES = {
     "web": "From web search",
     "web_no_results": "Web search — nothing found",
     "refuse": "Out of scope",
+    "meta": "Conversational",
 }
 
 
