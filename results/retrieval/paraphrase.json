@@ -1,0 +1,81 @@
+{
+  "sample_size": 99,
+  "paraphrase_model": "llama3.2:3b",
+  "corpus_chunks": 43615,
+  "results": {
+    "bm25": {
+      "original": {
+        "recall@1": 0.3636,
+        "recall@3": 0.5556,
+        "recall@5": 0.6263,
+        "mrr": 0.4673,
+        "median_latency_ms": 47.95
+      },
+      "paraphrased": {
+        "recall@1": 0.0101,
+        "recall@3": 0.0303,
+        "recall@5": 0.0404,
+        "mrr": 0.0205,
+        "median_latency_ms": 67.36
+      }
+    },
+    "dense": {
+      "original": {
+        "recall@1": 0.4747,
+        "recall@3": 0.7172,
+        "recall@5": 0.7576,
+        "mrr": 0.601,
+        "median_latency_ms": 8.83
+      },
+      "paraphrased": {
+        "recall@1": 0.0505,
+        "recall@3": 0.1616,
+        "recall@5": 0.2525,
+        "mrr": 0.1178,
+        "median_latency_ms": 5.04
+      }
+    }
+  },
+  "examples": [
+    {
+      "original": "What is the recovery time for a tummy tuck?",
+      "paraphrase": "how long does it take to recover from getting my stomach sucked in?"
+    },
+    {
+      "original": "What ongoing research is being carried out to study whether other treatments can benefit people with aphasia?",
+      "paraphrase": "what new things are researchers working on that might help people who have trouble talking after a stroke or brain injury?"
+    },
+    {
+      "original": "What is the role of the hypothalamus in the body?",
+      "paraphrase": "what does this tiny part of my brain do, like regulate hunger and stuff?"
+    },
+    {
+      "original": "What should I do if I feel pain or unwell while doing the exercise?",
+      "paraphrase": "if i get hurt while working out, what do i do?"
+    },
+    {
+      "original": "Can someone with Marfan syndrome still drive?",
+      "paraphrase": "can people with a rare genetic thing that affects their body still be behind the wheel?"
+    },
+    {
+      "original": "What is an advance statement about my wishes?",
+      "paraphrase": "is there a way to say in writing what you want to happen when you're really sick and can't talk for yourself?"
+    },
+    {
+      "original": "What if I have trouble making my COVID-19 vaccination preference choice online?",
+      "paraphrase": "help, can't pick vaccine type on website, what do i do now?"
+    },
+    {
+      "original": "Yes, I have noticed a lump and some discomfort. What is an orchidectomy?",
+      "paraphrase": "i found a weird bump under my skin what does it mean to remove the testicles?"
+    },
+    {
+      "original": "Can the colostomy reversal surgery be delayed?",
+      "paraphrase": "can i put off getting my colon fixed after a stoma?"
+    },
+    {
+      "original": "Propose a brief plan for a pilot study to test the effectiveness of a new drug in treating Parkinson's disease.",
+      "paraphrase": "can we design a quick experiment to see if this new medicine works for people with parkinsons?"
+    }
+  ]
+}
